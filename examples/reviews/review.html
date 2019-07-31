@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Vue.js grid component example</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="style.css"/>
+
+    <script src="../../dist/vue.min.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script>
+    </head>
+  <body>
+  <script type="text/x-template" id="modal-template">
+    <transition name="modal" appear>
+      <div class="modal-mask">
+        <div class="modal-wrapper">
+          <div class="modal-container">
+
+            <div class="modal-header">
+              <slot name="header">
+                default header
+              </slot>
+            </div>
+
+            <div class="modal-body ">
+              <slot name="body">
+                <div class="form-group">
+                  <label class="col-md-2 control-label">Vote</label>
+                   <div id="vote_bank" class="rating_star  col-md-5">
+                     <span  class="fa fa-star" @click="Vote(1)"></span>
+                     <span class="fa fa-star" @click="Vote(2)"></span>
+                     <span class="fa fa-star" @click="Vote(3)"></span>
+                     <span class="fa fa-star" @click="Vote(4)"></span>
+                     <span class="fa fa-star" @click="Vote(5)"></span>
+                   </div>
+                    <div class="col-md-5" style="padding-top:33px;">{{vm.vote_text}}</div>
+                </div>
+                  <div class="clearfix"></div>
+
+                  <div class="form-group row">
+                      <label for="title" class="col-sm-2 col-form-label ">title</label>
+                      <div class="col-sm-10">
+                          <input v-model="vm.name" type="text"  class=" form-control form-control-plaintext" id="title" placeholder="Example : Great Features">
+                      </div>
+                  </div>
+                <div class="form-group row">
+                    <label for="review" class="col-sm-2 col-form-label ">Review</label>
+                    <div class="col-sm-10">
+                    <textarea v-model="vm.review" class="form-control "  id="review" placeholder="Example: I bought this a month ago and am so happy that I did, and here's a photo of me using it..."></textarea>
+                    </div>
+                </div>
+                  <div class="clearfix"></div>
+                  <div class="form-group">
+                      <label class="col-md-2 control-label">Quality</label>
+                      <div id="vote_quality_bank" class="rating_star col-md-5">
+                          <span class="fa fa-star" @click="qualityVote(1)"></span>
+                          <span class="fa fa-star" @click="qualityVote(2)"></span>
+                          <span class="fa fa-star" @click="qualityVote(3)"></span>
+                          <span class="fa fa-star" @click="qualityVote(4)"></span>
+                          <span class="fa fa-star" @click="qualityVote(5)"></span>
+                      </div>
+                      <div class="col-md-5" style="padding-top:33px;">{{vm.vote_quality_text}}</div>
+                  </div>
+                  <div class="clearfix"></div>
+                  <div class="form-group">
+                      <label class="col-md-2 control-label">Performance</label>
+                      <div id="vote_performance_bank" class="rating_star col-md-5">
+                          <span class="fa fa-star"  @click="performanceVote(1)"></span>
+                          <span class="fa fa-star" @click="performanceVote(2)"></span>
+                          <span class="fa fa-star" @click="performanceVote(3)"></span>
+                          <span class="fa fa-star" @click="performanceVote(4)"></span>
+                          <span class="fa fa-star" @click="performanceVote(5)"></span>
+                      </div>
+                      <div class="col-md-5" style="padding-top:33px;">{{vm.vote_performance_text}}</div>
+                  </div>
+                  <div class="clearfix"></div>
+                  <div class="form-group">
+                      <label class="col-md-2 control-label">Features </label>
+                      <div id="vote_feature_bank" class="rating_star col-md-5">
+                          <span class="fa fa-star" @click="featureVote(1)"></span>
+                          <span class="fa fa-star" @click="featureVote(2)"></span>
+                          <span class="fa fa-star" @click="featureVote(3)"></span>
+                          <span class="fa fa-star" @click="featureVote(4)"></span>
+                          <span class="fa fa-star" @click="featureVote(5)"></span>
+                      </div>
+                      <div class="col-md-5" style="padding-top:33px;">{{vm.vote_features_text}}</div>
+                  </div>
+
+                  <div class="form-group row col-sm-6 ">
+                      <label for="name" class="col-sm-4 col-form-label "> Name</label>
+                      <div class="col-sm-8">
+                          <input v-model="vm.name" type="text"  class=" form-control form-control-plaintext" id="name" placeholder="Exmaple : john">
+                      </div>
+                  </div>
+                  <div class="form-group row col-sm-6 ">
+                      <label for="email" class="col-sm-4 col-form-label ">Email</label>
+                      <div class="col-sm-8">
+                          <input v-model="vm.email" type="email"  class=" form-control form-control-plaintext" id="email" placeholder="Exmaple : john@example.com">
+                      </div>
+                  </div>
+                  <div class="clearfix"></div>
+
+                  <div class="form-check">
+                      <input v-model="vm.recommend" class="form-check-input" type="checkbox" value="" id="defaultCheck1">
+                      <label class="form-check-label" for="defaultCheck1">
+                         WOULD YOU LIKE TO RECOMMEND THIS PRODUCT
+                      </label>
+                  </div>
+
+              </slot>
+            </div>
+
+            <div class="modal-footer">
+              <slot name="footer">
+                     <button class="modal-default-button" @click="$emit('close')" >
+                  OK
+                </button>
+              </slot>
+            </div>
+          </div>
+        </div>
+      </div>
+    </transition>
+  </script>
+  <div id="app">
+    <modal v-if="showModal" @close="showModal = false">
+      <h3 slot="header">PRODUCT NAME REVIEW SYSTEM</h3>
+    </modal>
+
+    <h1 style="text-align:center;">{{heading}}</h1>
+    <ul class="nav nav-tabs">
+      <li class="active"><a data-toggle="tab" href="#rev">Reviews</a></li>
+      <li><a data-toggle="tab" href="#qna">Question And Answer</a></li>
+
+    </ul>
+
+    <div class="tab-content">
+      <div id="rev" class="tab-pane fade in active">
+        <button id="show-modal" @click="showModal = true" style="margin: 40px 20px;">Write A Review</button>
+
+          <section v-if="errored">
+            <p>We're sorry, we're not able to retrieve this information at the moment, please try back later</p>
+          </section>
+          <div v-if="loading">Loading...</div>
+          <div  v-for="r in reviews" class="currency">
+            <h2>{{r.title}}</h2><span>{{r.nick}}</span>
+            <p>{{r.review}}</p>
+            <strong>Overall Rating:{{r.vote}}</strong>
+            <ul>
+              <li>Quality Vote:{{r.quality_vote}}</li>
+              <li>Performance Vote:{{r.performance_vote}}</li>
+              <li>Features Vote:{{r.features_vote}}</li>
+            </ul>
+
+          </div>
+        </div>
+      <div id="qna" class="tab-pane fade">
+        <h3>Menu 1</h3>
+        <p>Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
+      </div>
+
+    </div>
+
+
+  </div>
+  <script>
+
+
+      var vm = new Vue({
+            el: '#app',
+            data () {
+              return {
+                  info: null,
+                  reviews: null,
+                  title: null,
+                  recommend: null,
+                  name: null,
+                  email: null,
+                  loading: true,
+                  errored: false,
+                  showModal: false,
+                  heading: 'Reviews',
+                  vote:null,
+                  vote:3,
+                  vote_text:null,
+                  vote_quality:null,
+                  vote_quality_text:null,
+                  vote_features:null,
+                  vote_features_text:null,
+                  vote_performance:null,
+                  vote_performance_text:null
+              }
+            },
+            components: {
+                'modal': {
+                    template: '#modal-template',
+                    methods: {
+                        increaseCount: function () {
+                            alert('Allah Ka Karam.')
+                        },
+                        Vote:function(vote){
+                            vm.vote = vm.vote
+                            vm.vote_text = this.DoVoting('#vote_bank span',vote)
+                        },
+                        performanceVote:function(vote){
+                            vm.vote_performance = vote
+                            vm.vote_performance_text = this.DoVoting('#vote_performance_bank span',vote)
+                        },
+                        featureVote:function(vote) {
+                            vm.vote_features =  vote
+                            vm.vote_features_text = this.DoVoting('#vote_feature_bank span', vote)
+                        },
+                        qualityVote:function(vote){
+                            vm.vote_quality =  vote
+                            vm.vote_quality_text = this.DoVoting('#vote_quality_bank span',vote )
+                        },
+                        DoVoting:function(elem,vote){
+                            $(elem).each(function(ind){
+                                $(elem).eq(ind).removeClass('poor fair average good excellent')
+
+                            })
+                            elmText = ''
+                            if(vote == 1 ){
+                                $(elem).eq(0).addClass('poor')
+                                elmText = 'Poor'
+                            }
+                            if(vote == 2 ){
+                                $(elem).eq(0).addClass('fair')
+                                $(elem).eq(1).addClass('fair')
+                                elmText = 'Fair'
+                            }
+                            if(vote == 3 ){
+                                $(elem).eq(0).addClass('average')
+                                $(elem).eq(1).addClass('average')
+                                $(elem).eq(2).addClass('average')
+                                elmText = 'Average'
+                            }
+                            if(vote == 4 ){
+                                $(elem).eq(0).addClass('good')
+                                $(elem).eq(1).addClass('good')
+                                $(elem).eq(2).addClass('good')
+                                $(elem).eq(3).addClass('good')
+                                elmText = 'Good'
+                            }
+                            if(vote == 5 ){
+                                $(elem).eq(0).addClass('excellent')
+                                $(elem).eq(1).addClass('excellent')
+                                $(elem).eq(2).addClass('excellent')
+                                $(elem).eq(3).addClass('excellent')
+                                $(elem).eq(4).addClass('excellent')
+                                elmText = 'Excellent'
+                            }
+                            return elmText
+                        }
+
+                    },
+
+                }
+            },
+            filters: {
+                decimal (value) {
+                    return value.toFixed(2)
+                }
+            },
+          methods: {
+                  submitEntry: function() {
+                  this.ajaxRequest = true;
+                  this.$http.post('http://localhost/entry', {
+                      title: this.title,
+                      reviews: this.reviews,
+                      recommend: this.recommend,
+                      name: this.name,
+                      email: this.email,
+                      vote: this.vote,
+                      vote_quality: this.vote_quality,
+                      vote_features: this.vote_features,
+                      vote_performance: this.vote_performance
+                  }, function (data, status, request) {
+                      this.postResults = data;
+
+                      this.ajaxRequest = false;
+                  });
+              }
+            },
+            mounted () {
+                axios
+                    .get('http://localhost/reviews/response.php')
+                    .then(response => {
+                        //this.heading = response.data.chartName
+                        this.reviews = response.data
+                    })
+                    .catch(error => {
+                        console.log(error)
+                        this.errored = true
+                    })
+                    .finally(() =>  this.loading = false)
+            }
+        })
+    </script>
+  <script>
+      $(document).ready(function(){
+         $('body').on('hover','.rating_star',function(){
+                alert('Jaffar Raza')
+         });
+      })
+  </script>
+
+
+
+  </body>
+</html>
